@@ -50,7 +50,8 @@ function App() {
                       <p>fasnauisnfuiasenfuisaenfuiaes</p>
                   </Component>
                 } />
-                <Route path="/button" element={<Counter />}>
+                <Route path="/button">
+                    <Route path="" element={<Counter />} />
                     <Route path="complex" element={<Comp1 />} />
                 </Route>
               </Routes>
