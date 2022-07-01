@@ -10,6 +10,53 @@ interface Props {
     image: string
 }
 
+interface PropsCompTree {
+    setCount: (count: number) => void,
+    count: number
+}
+
+function Comp1() {
+    const countString = localStorage.getItem("count");
+    const [count, setCount] = useState(countString == null ? 0 : parseInt(countString));
+
+    useEffect(() => {
+        document.title = `You clicked ${count} times`;
+        localStorage.setItem("count", count.toString());
+    });
+    return (
+        <div>
+            <Comp2 setCount={setCount} count={count}/>
+            <Comp3 setCount={setCount} count={count}/>
+        </div>
+    );
+}
+
+function Comp2(props: PropsCompTree) {
+    return (
+        <div>
+            <button onClick={() => props.setCount(props.count + 1)}>
+                Click me
+            </button>
+        </div>
+    )
+}
+
+function Comp3(props: PropsCompTree) {
+    return (
+      <div>
+          <p>You clicked {<Comp4 count={props.count} setCount={props.setCount}/>} times</p>
+      </div>
+    );
+}
+
+function Comp4(props: PropsCompTree) {
+    return (
+        <div>
+            {props.count}
+        </div>
+    );
+}
+
 function Counter() {
     const countString = localStorage.getItem("count");
     const [count, setCount] = useState(countString == null ? 0 : parseInt(countString));
@@ -46,7 +93,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <Component name="NASA" p1="fafargigmfaefasrfa" p2="fafaffeafa3f3asfdafadfa" image={nasaLogo} />
-        <Counter />
+        <Comp1 />
         <a
           className="App-link"
           href="https://reactjs.org"
