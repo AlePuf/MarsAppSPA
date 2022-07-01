@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import logo from './logo.svg';
 import nasaLogo from './nasa-logo-web-rgb.png'
 import './App.css';
@@ -15,6 +15,11 @@ interface PropsCompTree {
     count: number
 }
 
+const Context = React.createContext({
+   count: 0,
+   setCount: (count: number) => {}
+});
+
 function Comp1() {
     const countString = localStorage.getItem("count");
     const [count, setCount] = useState(countString == null ? 0 : parseInt(countString));
@@ -24,35 +29,39 @@ function Comp1() {
         localStorage.setItem("count", count.toString());
     });
     return (
-        <div>
-            <Comp2 setCount={setCount} count={count}/>
-            <Comp3 setCount={setCount} count={count}/>
-        </div>
+        <Context.Provider value={{count, setCount}}>
+            <div>
+                <Comp2 />
+                <Comp3 />
+            </div>
+        </Context.Provider>
     );
 }
 
-function Comp2(props: PropsCompTree) {
+function Comp2() {
+    const context = useContext(Context);
     return (
         <div>
-            <button onClick={() => props.setCount(props.count + 1)}>
+            <button onClick={() => context.setCount(context.count + 1)}>
                 Click me
             </button>
         </div>
     )
 }
 
-function Comp3(props: PropsCompTree) {
+function Comp3() {
     return (
       <div>
-          <p>You clicked {<Comp4 count={props.count} setCount={props.setCount}/>} times</p>
+          <p>You clicked {<Comp4 />} times</p>
       </div>
     );
 }
 
-function Comp4(props: PropsCompTree) {
+function Comp4() {
+    const context = useContext(Context);
     return (
         <div>
-            {props.count}
+            {context.count}
         </div>
     );
 }
