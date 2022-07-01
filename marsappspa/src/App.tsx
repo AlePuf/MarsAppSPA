@@ -2,6 +2,7 @@ import React, {useState, useEffect, useContext} from 'react';
 import logo from './logo.svg';
 import nasaLogo from './nasa-logo-web-rgb.png';
 import './App.scss';
+import Button from '@mui/material/Button';
 import {BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
 
 interface Props {
@@ -58,9 +59,9 @@ function Counter() {
     return (
         <div>
             <p>You clicked {context.count} times</p>
-            <button onClick={() => context.setCount(context.count + 1)}>
+            <Button variant="outlined" color="success" onClick={() => context.setCount(context.count + 1)}>
                 Click me
-            </button>
+            </Button>
         </div>
     );
 }
