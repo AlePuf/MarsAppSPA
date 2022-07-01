@@ -1,7 +1,8 @@
 import React, {useState, useEffect, useContext} from 'react';
 import logo from './logo.svg';
-import nasaLogo from './nasa-logo-web-rgb.png'
+import nasaLogo from './nasa-logo-web-rgb.png';
 import './App.css';
+import {BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
 
 interface Props {
     name: string,
@@ -10,31 +11,17 @@ interface Props {
     image: string
 }
 
-interface PropsCompTree {
-    setCount: (count: number) => void,
-    count: number
-}
-
 const Context = React.createContext({
    count: 0,
    setCount: (count: number) => {}
 });
 
 function Comp1() {
-    const countString = localStorage.getItem("count");
-    const [count, setCount] = useState(countString == null ? 0 : parseInt(countString));
-
-    useEffect(() => {
-        document.title = `You clicked ${count} times`;
-        localStorage.setItem("count", count.toString());
-    });
     return (
-        <Context.Provider value={{count, setCount}}>
-            <div>
-                <Comp2 />
-                <Comp3 />
-            </div>
-        </Context.Provider>
+        <div>
+            <Comp3 />
+            <Comp2 />
+        </div>
     );
 }
 
@@ -67,22 +54,31 @@ function Comp4() {
 }
 
 function Counter() {
-    const countString = localStorage.getItem("count");
-    const [count, setCount] = useState(countString == null ? 0 : parseInt(countString));
-
-    useEffect(() => {
-        document.title = `You clicked ${count} times`;
-        localStorage.setItem("count", count.toString());
-    });
-
+    const context = useContext(Context);
     return (
         <div>
-            <p>You clicked {count} times</p>
-            <button onClick={() => setCount(count + 1)}>
+            <p>You clicked {context.count} times</p>
+            <button onClick={() => context.setCount(context.count + 1)}>
                 Click me
             </button>
         </div>
     );
+}
+
+function ReactBase() {
+    return (
+        <div>
+            <img src={logo} className="App-logo" alt="logo" />
+            <a
+                className="App-link"
+                href="https://reactjs.org"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Learn React
+            </a>
+        </div>
+    )
 }
 
 function Component(props: Props) {
@@ -97,20 +93,44 @@ function Component(props: Props) {
 }
 
 function App() {
+  const countString = localStorage.getItem("count");
+  const [count, setCount] = useState(countString == null ? 0 : parseInt(countString));
+
+  useEffect(() => {
+      document.title = `You clicked ${count} times`;
+      localStorage.setItem("count", count.toString());
+  });
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Component name="NASA" p1="fafargigmfaefasrfa" p2="fafaffeafa3f3asfdafadfa" image={nasaLogo} />
-        <Comp1 />
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <Context.Provider value={{count, setCount}}>
+          <Router>
+            <div>
+              <nav>
+                <ul>
+                  <li>
+                    <Link to="/">Home</Link>
+                  </li>
+                  <li>
+                    <Link to="/NASA">NASA</Link>
+                  </li>
+                  <li>
+                    <Link to="/Button">Button</Link>
+                  </li>
+                  <li>
+                    <Link to="/ComplexButton">Complex Button</Link>
+                  </li>
+                </ul>
+              </nav>
+              <Routes>
+                <Route path="/" element={<ReactBase />} />
+                <Route path="/NASA" element={<Component name="NASA" p1="fafargigmfaefasrfa" p2="fafaffeafa3f3asfdafadfa" image={nasaLogo} />} />
+                <Route path="/Button" element={<Counter />} />
+                <Route path="/ComplexButton" element={<Comp1 />} />
+              </Routes>
+            </div>
+          </Router>
+        </Context.Provider>
       </header>
     </div>
   );
