@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext} from 'react';
 import logo from './logo.svg';
 import nasaLogo from './nasa-logo-web-rgb.png';
-import './App.css';
+import './App.scss';
 import {BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
 
 interface Props {
