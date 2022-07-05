@@ -3,13 +3,19 @@ import nasaLogo from './nasa-logo-web-rgb.png';
 import './App.scss';
 import {Counter} from './Counter';
 import {Comp1} from './Comp1';
+import {NASA_API} from "./nasa";
 import {ReactBase} from './ReactBase';
 import {Component} from './Component';
 import {BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
 
-export const Context = React.createContext({
+interface ContextType {
+  count: number,
+  setCount: (count: number) => void,
+}
+
+export const Context = React.createContext<ContextType>({
    count: 0,
-   setCount: (count: number) => {}
+   setCount: (count: number) => {},
 });
 
 function App() {
@@ -17,7 +23,6 @@ function App() {
   const [count, setCount] = useState(countString == null ? 0 : parseInt(countString));
 
   useEffect(() => {
-      document.title = `You clicked ${count} times`;
       localStorage.setItem("count", count.toString());
   });
   return (
@@ -40,19 +45,24 @@ function App() {
                   <li>
                     <Link to="/button/complex">Complex Button</Link>
                   </li>
+                  <li>
+                    <Link to="/nasa/rovers">NASA rovers</Link>
+                  </li>
                 </ul>
               </nav>
               <Routes>
                 <Route path="/" element={<ReactBase />} />
-                <Route path="/nasa" element={
-                  <Component name="NASA" image={nasaLogo}>
+                <Route path="/nasa">
+                  <Route path="" element={
+                    <Component name="NASA" image={nasaLogo}>
                       <p>ANFiuonuifoanerfasofoasnfoisuaenfas</p>
                       <p>fasnauisnfuiasenfuisaenfuiaes</p>
-                  </Component>
-                } />
+                    </Component>} />
+                  <Route path="rovers" element={<NASA_API />} />
+                </Route>
                 <Route path="/button">
-                    <Route path="" element={<Counter />} />
-                    <Route path="complex" element={<Comp1 />} />
+                  <Route path="" element={<Counter />} />
+                  <Route path="complex" element={<Comp1 />} />
                 </Route>
               </Routes>
             </div>
