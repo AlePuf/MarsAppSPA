@@ -1,4 +1,6 @@
-import React, {ReactNode, useState} from "react";
+import React, {ReactNode, useState, CSSProperties} from "react";
+import CircleLoader from 'react-spinners/CircleLoader';
+import PacmanLoader from 'react-spinners/PacmanLoader';
 import Button from "@mui/material/Button";
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
@@ -42,6 +44,12 @@ interface JSONPhoto {
     rover: JSONRover;
 }
 
+const override: CSSProperties = {
+    display: "block",
+    margin: "0 auto",
+    borderColor: "red",
+}
+
 export function NASA_API() {
     const [rover, setRover] = useState("");
     const [disabled, setDisabled] = useState(true);
@@ -53,6 +61,8 @@ export function NASA_API() {
     const [sentRequest, setSentRequest] = useState(false);
     const [showPhotos, setShowPhotos] = useState(false);
     const [photoList, setPhotoList] = useState<Array<ReactNode>>([]);
+    const [loading, setLoading] = useState(true);
+    const [loadingPhoto, setLoadingPhoto] = useState(false);
     const handleChangeRover = (event: SelectChangeEvent) => {
         setRover(event.target.value);
         setDisabled(false);
@@ -66,6 +76,7 @@ export function NASA_API() {
         setSentRequest(true);
         axios.get("http://localhost:8000/rovers").then((response) => {
             setRoverList(response.data);
+            setLoading(false);
             setOptions(response.data.map((rover: JSONRovers) => {
                 return {label: rover.name, value: rover.name.toLowerCase()}
             }));
@@ -75,6 +86,7 @@ export function NASA_API() {
     }
     return (
         <div>
+            <CircleLoader color="#00ff00" loading={loading} cssOverride={override} />
             <FormControl sx={{m: 1, minWidth: 120}}>
                 <InputLabel id ="rover-select-label">Rover</InputLabel>
                 <Select
@@ -84,9 +96,9 @@ export function NASA_API() {
                     label="Rover"
                     onChange={handleChangeRover}
                 >
-                    {options.map(option => {
+                    {options.map((option, index) => {
                         return (
-                            <MenuItem value={option.value}>{option.label}</MenuItem>
+                            <MenuItem key={index} value={option.value}>{option.label}</MenuItem>
                         )
                     })}
                 </Select>
@@ -102,16 +114,18 @@ export function NASA_API() {
                 >
                     {cameras.map((camera : JSONCamera) => {
                         return (
-                            <MenuItem value={camera.name}>{camera.full_name}</MenuItem>
+                            <MenuItem key={camera.id} value={camera.name}>{camera.full_name}</MenuItem>
                         )
                     })}
                 </Select>
             </FormControl>
             <Button variant="contained" color="success" disabled={disabledButton} onClick={() => {
+                setLoadingPhoto(true);
                 axios.get("http://localhost:8000/rovers/" + rover + "/photos/200?camera=" + camera + "&page=1").then((response) => {
+                    setLoadingPhoto(false);
                     setShowPhotos(true);
                     setPhotoList(response.data.slice(0, 5).map((photo: JSONPhoto) => {
-                        return <img src={photo.img_src} alt="Mars rover" />
+                        return <img key={photo.id} src={photo.img_src} alt="Mars rover" />
                     }));
                 }).catch(() => {
                     console.log("error");
@@ -119,6 +133,7 @@ export function NASA_API() {
             }}>
                 Get photos
             </Button>
+            <PacmanLoader color="#ff00ff" loading={loadingPhoto} cssOverride={override} />
             {showPhotos && <div>{photoList}</div>}
         </div>
     )
