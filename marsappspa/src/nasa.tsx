@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {ReactNode, useState} from "react";
 import Button from "@mui/material/Button";
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
@@ -25,14 +25,34 @@ interface JSONRovers {
     cameras: Array<JSONCamera>;
 }
 
+interface JSONRover {
+    id: number;
+    name: string;
+    landing_date: string;
+    launch_date: string;
+    status: string;
+}
+
+interface JSONPhoto {
+    id: number;
+    sol: number;
+    camera: JSONCamera;
+    img_src: string;
+    earth_date: string;
+    rover: JSONRover;
+}
+
 export function NASA_API() {
     const [rover, setRover] = useState("");
     const [disabled, setDisabled] = useState(true);
+    const [disabledButton, setDisabledButton] = useState(true);
     const [cameras, setCameras] = useState([{id: 0, name: "", rover_id: 0, full_name: ""}]);
     const [camera, setCamera] = useState("");
     const [options, setOptions] = useState([{label: "", value: ""}]);
     const [roverList, setRoverList] = useState<Array<JSONRovers>>([]);
     const [sentRequest, setSentRequest] = useState(false);
+    const [showPhotos, setShowPhotos] = useState(false);
+    const [photoList, setPhotoList] = useState<Array<ReactNode>>([]);
     const handleChangeRover = (event: SelectChangeEvent) => {
         setRover(event.target.value);
         setDisabled(false);
@@ -40,6 +60,7 @@ export function NASA_API() {
     }
     const handleChangeCamera = (event: SelectChangeEvent) => {
         setCamera(event.target.value);
+        setDisabledButton(false);
     }
     if (!sentRequest) {
         setSentRequest(true);
@@ -86,6 +107,19 @@ export function NASA_API() {
                     })}
                 </Select>
             </FormControl>
+            <Button variant="contained" color="success" disabled={disabledButton} onClick={() => {
+                axios.get("http://localhost:8000/rovers/" + rover + "/photos/200?camera=" + camera + "&page=1").then((response) => {
+                    setShowPhotos(true);
+                    setPhotoList(response.data.slice(0, 5).map((photo: JSONPhoto) => {
+                        return <img src={photo.img_src} alt="Mars rover" />
+                    }));
+                }).catch(() => {
+                    console.log("error");
+                });
+            }}>
+                Get photos
+            </Button>
+            {showPhotos && <div>{photoList}</div>}
         </div>
     )
 }
